@@ -1,12 +1,11 @@
+from excep1 import BookNotFoundError
+
+
 class SearchService:
     @staticmethod
     def search_book(library, title):
-        found = False
-
         for book in library.books:
             if title.lower() in book.title.lower():
-                print("Found:", book.title)
-                found = True
+                return book
 
-        if not found:
-            print("Book not found")
+        raise BookNotFoundError("Book does not exist")
