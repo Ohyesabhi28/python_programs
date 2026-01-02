@@ -10,6 +10,23 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+# Role endpoints
+@app.post("/roles", response_model=schemas.RoleResponse)
+def create_role(role: schemas.RoleCreate, db: Session = Depends(get_db)):
+    return crud.create_role(db, role)
+
+@app.get("/roles", response_model=list[schemas.RoleResponse])
+def read_roles(db: Session = Depends(get_db)):
+    return crud.get_roles(db)
+
+@app.get("/roles/{role_id}", response_model=schemas.RoleResponse)
+def read_role(role_id: int, db: Session = Depends(get_db)):
+    role = crud.get_role(db, role_id)
+    if not role:
+        raise HTTPException(status_code=404, detail="Role not found")
+    return role
+
+# User endpoints (updated with role)
 @app.post("/users", response_model=schemas.UserResponse)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return crud.create_user(db, user)
@@ -17,6 +34,16 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 @app.get("/users", response_model=list[schemas.UserResponse])
 def read_users(db: Session = Depends(get_db)):
     return crud.get_users(db)
+
+@app.get(
+    "/roles/{role_id}/users",
+    response_model=list[schemas.UserResponse]
+)
+def get_users_by_role_api(
+    role_id: int,
+    db: Session = Depends(get_db)
+):
+    return crud.get_users_by_role(db=db, role_id=role_id)
 
 @app.get("/users/{user_id}", response_model=schemas.UserResponse)
 def read_user(user_id: int, db: Session = Depends(get_db)):
@@ -31,6 +58,40 @@ def update_user(user_id: int, user: schemas.UserUpdate, db: Session = Depends(ge
     if not updated:
         raise HTTPException(status_code=404, detail="User not found")
     return updated
+
+@app.put("/users/{user_id}/role", response_model=schemas.UserResponse)
+def update_user_role_api(
+    user_id: int, 
+    payload: schemas.UserRoleUpdate, 
+    db: Session = Depends(get_db)
+):
+    result = crud.update_user_role(
+        db=db,
+        user_id=user_id,
+        role_id=payload.role_id
+    )
+    if result is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if result == "ROLE_NOT_FOUND":
+        raise HTTPException(status_code=404, detail="Role not found")
+    return result
+
+@app.patch("/users/{user_id}/role", response_model=schemas.UserResponse)
+def patch_user_role(
+    user_id: int, 
+    payload: schemas.UserRoleUpdate, 
+    db: Session = Depends(get_db)
+):
+    result = crud.update_user_role(
+        db=db,
+        user_id=user_id,
+        role_id=payload.role_id
+    )
+    if result is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if result == "ROLE_NOT_FOUND":
+        raise HTTPException(status_code=404, detail="Role not found")
+    return result
 
 @app.get("/")
 def health_check():

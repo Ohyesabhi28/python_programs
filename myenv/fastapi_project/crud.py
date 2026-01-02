@@ -2,10 +2,26 @@ from sqlalchemy.orm import Session
 import models
 import schemas
 
+# Role CRUD operations
+def create_role(db: Session, role: schemas.RoleCreate):
+    db_role = models.Role(name=role.name)
+    db.add(db_role)
+    db.commit()
+    db.refresh(db_role)
+    return db_role
+
+def get_roles(db: Session):
+    return db.query(models.Role).all()
+
+def get_role(db: Session, role_id: int):
+    return db.query(models.Role).filter(models.Role.id == role_id).first()
+
+# User CRUD operations
 def create_user(db: Session, user: schemas.UserCreate):
     db_user = models.User(
         name=user.name,
-        email=user.email
+        email=user.email,
+        role_id=user.role_id
     )
     
     db.add(db_user)
@@ -16,6 +32,29 @@ def create_user(db: Session, user: schemas.UserCreate):
 def get_users(db: Session):
     return db.query(models.User).all()
 
+def get_users_by_role(db: Session, role_id: int):
+    return (
+        db.query(models.User)
+        .filter(models.User.role_id == role_id)
+        .all()
+    )
+
+def update_user_role(db: Session, user_id: int, role_id: int):
+    # fetch user data
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        return None
+    
+    # check role exists or not
+    role = db.query(models.Role).filter(models.Role.id == role_id).first()
+    if not role:
+        return "ROLE_NOT_FOUND"
+    
+    user.role_id = role_id
+    db.commit()
+    db.refresh(user)
+    return user
+
 def get_user(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
@@ -25,6 +64,7 @@ def update_user(db: Session, user_id: int, user: schemas.UserUpdate):
         return None
     db_user.name = user.name
     db_user.email = user.email
+    db_user.role_id = user.role_id
     db.commit()
     db.refresh(db_user)
     return db_user

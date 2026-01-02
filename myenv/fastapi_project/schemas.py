@@ -1,20 +1,41 @@
 from pydantic import BaseModel
 from typing import Optional
 
-# Unidirectional schemas (User -> Profile)
-class UserCreate(BaseModel):
-    email: str
+# Role schemas
+class RoleBase(BaseModel):
     name: str
 
-class UserUpdate(BaseModel):
-    email: str
-    name: str
+class RoleCreate(RoleBase):
+    pass
 
-class UserResponse(UserCreate):
+class RoleResponse(RoleBase):
     id: int
     
     class Config:
         from_attributes = True
+
+# Updated User schemas with role
+class UserCreate(BaseModel):
+    name: str
+    email: str
+    role_id: int
+
+class UserUpdate(BaseModel):
+    name: str
+    email: str
+    role_id: int
+
+class UserResponse(BaseModel):
+    id: int
+    name: str
+    email: str
+    role: Optional[RoleResponse]
+    
+    class Config:
+        from_attributes = True
+
+class UserRoleUpdate(BaseModel):
+    role_id: int
 
 class ProfileCreate(BaseModel):
     age: int
