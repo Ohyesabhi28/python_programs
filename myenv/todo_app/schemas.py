@@ -34,9 +34,10 @@ class TaskResponse(TaskBase):
     completed: bool
     created_at: datetime
     user_id: int
+    owner: Optional[UserResponse] = None
     
     class Config:
         from_attributes = True
 
 class UserWithTasks(UserResponse):
-    tasks: List[TaskResponse] = []
+    pass

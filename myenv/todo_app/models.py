@@ -11,8 +11,6 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     is_admin = Column(Boolean, default=False)
     created_at = Column(DateTime, server_default=func.now())
-    
-    tasks = relationship("Task", back_populates="owner")
 
 class Task(Base):
     __tablename__ = "tasks"
@@ -24,4 +22,4 @@ class Task(Base):
     created_at = Column(DateTime, server_default=func.now())
     user_id = Column(Integer, ForeignKey("users.id"))
     
-    owner = relationship("User", back_populates="tasks")
+    owner = relationship("User")

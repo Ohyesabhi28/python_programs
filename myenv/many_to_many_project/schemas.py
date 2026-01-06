@@ -18,7 +18,7 @@ class UserBase(BaseModel):
     email: str
 
 class UserCreate(UserBase):
-    pass
+    role_ids: List[int] = []
 
 class UserResponse(UserBase):
     id: int

@@ -6,9 +6,15 @@ import models
 import schemas
 from database import engine, get_db
 
-models.Base.metadata.create_all(bind=engine)
-
 app = FastAPI(title="Many-to-Many FastAPI Project")
+
+# Create tables immediately when the module is imported
+models.Base.metadata.create_all(bind=engine)
+print("✅ Database tables created successfully!")
+
+@app.get("/")
+def health_check():
+    return {"message": "Many-to-Many FastAPI is running!"}
 
 @app.post("/roles", response_model=schemas.RoleResponse)
 def create_role(role: schemas.RoleCreate, db: Session = Depends(get_db)):

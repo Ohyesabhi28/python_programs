@@ -1,5 +1,6 @@
 # Virtual Environment
 myenv/
+!myenv/auth_todo_app/
 venv/
 env/
 .env

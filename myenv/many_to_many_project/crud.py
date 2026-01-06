@@ -16,7 +16,15 @@ def get_role(db: Session, role_id: int):
     return db.query(models.Role).filter(models.Role.id == role_id).first()
 
 def create_user(db: Session, user: schemas.UserCreate):
+    roles = (
+        db.query(models.Role)
+        .filter(models.Role.id.in_(user.role_ids))
+        .all()
+    )
+    
     db_user = models.User(name=user.name, email=user.email)
+    db_user.roles = roles
+    
     db.add(db_user)
     db.commit()
     db.refresh(db_user)

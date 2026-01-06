@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Table, ForeignKey
+from sqlalchemy import Column, Integer, String, Table, ForeignKey, Date
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -23,5 +23,6 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     email = Column(String, unique=True, index=True)
+    dob = Column(Date)
     
     roles = relationship("Role", secondary=user_roles, back_populates="users")
